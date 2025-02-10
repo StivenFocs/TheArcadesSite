@@ -1,0 +1,168 @@
+@inport url('font/minecraft/stylesheet.css');
+
+* {
+    outline: none;
+}
+
+body {
+    font-family: "Josefin Sans", sans-serif;
+    letter-spacing: 1px;
+    padding-bottom: 100px;
+}
+
+.logo {
+    width: 75px;
+}
+
+.marked {
+    color: #fcba03;
+}
+
+header {
+    background-color: #00000050;
+}
+
+.content img {
+    border-radius: 4px;
+}
+
+.media-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    grid-gap: 20px;
+}
+
+.media-grid img {
+    box-sizing: border-box;
+    border-radius: 8px;
+    aspect-ratio: 16.5 / 9;
+}
+
+[mediaView] {
+    margin: auto;
+    background-color: transparent;
+    border: none;
+}
+[mediaView] img[media] {
+    width: 60vw;
+    margin: auto;
+    display: block;
+    user-select: none;
+    box-shadow: 0px 0px 10px 5px #40404080;
+}
+[mediaView] .delete {
+    position: fixed;
+    top: 20px;
+    right: 20px;
+}
+[mediaView]::backdrop {
+    background-color: #00000050;
+    blur: 20%;
+}
+body:has([open]) {
+    overflow: hidden;
+}
+
+img[src="images/loading.svg"] {
+    filter: invert(80%) sepia(79%) saturate(5374%) hue-rotate(0deg) brightness(104%) contrast(98%);
+    width: 80px;
+}
+
+.suggestions h3 {
+    margin-top: 20px;
+}
+.suggestions img[src="images/loading.svg"] {
+    margin: 0 auto;
+    display: block;
+}
+
+.suggestions .suggestion {
+    background-color: #00000070;
+    padding: 20px;
+    border-radius: 4px;
+    margin: 20px 0;
+}
+
+.suggestions .suggestion .username, .suggest span[username] {
+    font-family: Minecraft;
+    font-size: 1.15em;
+}
+.suggestions .suggestion .text {
+    color: white;
+    word-break: break-word;
+}
+
+.suggestions .name-row {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+.suggestions .name-row .date {
+    letter-spacing: 3px;
+    font-size: 1.15em;
+}
+.suggestions .buttons button {
+    margin-right: 5px;
+}
+.suggestions button.upvote, .suggestions button.downvote {
+    padding: 9px 15px;
+}
+.suggestions button.upvote.upvoted img {
+    filter: brightness(0) saturate(100%) invert(70%) sepia(51%) saturate(5317%) hue-rotate(3deg) brightness(104%) contrast(111%);
+}
+.suggestions button.downvote.downvoted img {
+    filter: invert(33%) sepia(41%) saturate(6974%) hue-rotate(224deg) brightness(97%) contrast(109%);
+}
+
+.suggestions button.upvote img, .suggestions button.downvote img {
+    width: 20px;
+    filter: brightness(0) saturate(100%) invert(100%) sepia(0%) saturate(7470%) hue-rotate(116deg) brightness(109%) contrast(109%);
+}
+.suggestions button.downvote img {
+    transform: rotate(180deg);
+}
+
+.suggestions button.reported {
+    color: #fcba03;
+}
+
+.suggestion div.del {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+/*textarea.textarea {
+    background-color: #00000070;
+    border: none;
+    outline: 1px solid royalblue;
+    border-radius: 4px;
+    padding: 8px;
+    color: white;
+    margin: 10px 0;
+    width: 100%;
+    box-sizing: border-box;
+    resize: none;
+    transition: 0.2s;
+}
+textarea:focus {
+    background-color: #ffffff05;
+}*/
+
+.login {
+    display: none;
+}
+.suggest {
+    display: none;
+}
+.suggest textarea.textarea {
+    margin 10px 0;
+    resize: none;
+    scrollbar-color: #7585ff transparent;
+}
+::placeholder {
+    user-select: none;
+}
+.suggest button {
+    margin: 10px 0;
+}

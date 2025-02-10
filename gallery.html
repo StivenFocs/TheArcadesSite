@@ -1,0 +1,97 @@
+<!doctype html>
+
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+
+    <link
+        rel="stylesheet"
+        href="https://cdn.jsdelivr.net/npm/bulma@1.0.2/css/bulma.min.css"
+    />
+
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+        rel="stylesheet"
+        href="https://fonts.googleapis.com/css2?family=Josefin+Sans:ital,wght@0,100..700;1,100..700&display=swap"
+    />
+
+    <link rel="stylesheet" href="master.css" />
+
+    <title>The Arcades - Gallery</title>
+</head>
+
+<body data-theme="dark">
+    %header%
+
+    <div class="m-5">
+        <div class="container content is-medium" style="max-width: 800px">
+            <div class="media-grid">
+                <img src="gallery/motd.png" />
+                <img src="gallery/motd-2.png" loading="lazy" />
+                <img src="gallery/lobby-1.png" loading="lazy" />
+                <img src="gallery/lobby-2.png" loading="lazy" />
+                <img src="gallery/lobby-3.png" loading="lazy" />
+                <img src="gallery/lobby-4.png" loading="lazy" />
+                <img src="gallery/lobby-5.png" loading="lazy" />
+                <img src="gallery/lobby-6.png" loading="lazy" />
+                <img src="gallery/lobby-7.png" loading="lazy" />
+                <img src="gallery/lobby-8.png" loading="lazy" />
+                <img src="gallery/lobby-9.png" loading="lazy" />
+                <img src="gallery/other-1.gif" loading="lazy" />
+                <img src="gallery/other-2.png" loading="lazy" />
+                <img src="gallery/other-3.png" loading="lazy" />
+                <img src="gallery/other-4.png" loading="lazy" />
+                <img src="gallery/other-5.png" loading="lazy" />
+                <img src="gallery/kitpvp-2.png" loading="lazy" />
+                <img src="gallery/kitpvp-1.png" loading="lazy" />
+                <img src="gallery/paintball-1.png" loading="lazy" />
+                <img src="gallery/paintball-2.png" loading="lazy" />
+                <img src="gallery/paintball-3.png" loading="lazy" />
+                <img src="gallery/paintball-4.png" loading="lazy" />
+                <img src="gallery/paintball-5.png" loading="lazy" />
+                <img src="gallery/paintball-6.png" loading="lazy" />
+                <img src="gallery/paintball-7.png" loading="lazy" />
+                <img src="gallery/paintball-8.png" loading="lazy" />
+                <img src="gallery/paintball-9.png" loading="lazy" />
+                <img src="gallery/paintball-10.png" loading="lazy" />
+                <img src="gallery/paintball-11.png" loading="lazy" />
+                <img src="gallery/tnttag-1.png" loading="lazy" />
+                <img src="gallery/tnttag-2.png" loading="lazy" />
+                <img src="gallery/poor_cats.gif" loading="lazy" />
+                <img src="gallery/player_color.gif" loading="lazy" />
+                <img src="gallery/minegame_star_block.gif" loading="lazy" />
+                <img src="gallery/skins.gif" loading="lazy" />
+                <img src="gallery/skins-1.png" loading="lazy" />
+                <img src="gallery/parkour-1.png" loading="lazy" />
+                <img src="gallery/simpleassorted-1.png" loading="lazy" />
+                <img src="gallery/minegame-1.png" loading="lazy" />
+            </div>
+        </div>
+    </div>
+
+    <dialog mediaView>
+        <img media />
+        <button class="delete is-large"></button>
+    </dialog>
+
+    <script>
+        const gallery = document.querySelectorAll(".media-grid img");
+        const mediaView = document.querySelector("[mediaView]");
+
+        function openPhoto(photo) {
+            const img = mediaView.querySelector("img[media]");
+            img.src = photo.src;
+
+            mediaView.showModal();
+        }
+        mediaView
+            .querySelector(".delete")
+            .addEventListener("click", () => mediaView.close());
+
+        for (const photo of gallery) {
+            photo.addEventListener("click", () => openPhoto(photo));
+            photo.loading = "lazy";
+        }
+    </script>
+</body>

@@ -1,0 +1,121 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <style>
+    .draggable-icon {
+        background-color: #2e2e2e;
+        padding: 0px 5px;
+        border-radius: 8px;
+        box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+        transition: box-shadow 0.2s;
+        width: 6vw;
+        height: 11vh;
+
+        position: absolute;
+        cursor: move;
+        user-select: none;
+
+        opacity: 80%;
+    }
+    .draggable-icon img {
+        pointer-events: none;
+        width: 100%;
+        box-sizing: border-box;
+    }
+
+    .draggable-icon:hover {
+        opacity: 100%;
+        box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+    }
+  </style>
+
+  <style>
+        body {
+            margin: 0;
+            padding: 0;
+            width: 100%;
+            height: 100%;
+            overflow: hidden;
+            background-color: transparent;
+            font-family: Arial, sans-serif;
+        }
+    </style>
+
+    <script src="https://extension-files.twitch.tv/helper/v1/twitch-ext.min.js"></script>
+</head>
+<body>
+    <div class="draggable-icon" id="icon" >
+        <img src="logo.png">
+    </div>
+
+  <script>
+    window.Twitch.ext.onAuthorized(function(auth) {
+        init()
+    })
+
+    function init() {
+    }
+
+    const icon = document.getElementById('icon')
+    let isDragging = false
+    let currentX
+    let currentY
+    let initialX
+    let initialY
+    let xOffset = 0
+    let yOffset = 0
+
+    icon.addEventListener('click', (event) => {
+        fetch('/api/stream/jumpscare')
+    })
+
+    icon.addEventListener('mousedown', (event) => {
+        initialX = event.clientX - xOffset;
+        initialY = event.clientY - yOffset;
+
+        if (event.target === icon) {
+            isDragging = true;
+        }
+    })
+
+    document.addEventListener('mousemove', (event) => {
+        if (!isDragging)
+            return;
+
+        event.preventDefault()
+
+        currentX = event.clientX - initialX
+        currentY = event.clientY - initialY
+
+        const borderX = icon.parentNode.clientWidth - icon.clientWidth
+        const borderY = icon.parentNode.clientHeight - icon.clientHeight - 45
+
+        if (currentX < 0) currentX = 0
+        else if (currentX >= borderX) currentX = borderX
+
+        console.log(currentY)
+        console.log(borderY)
+        console.log('currentY >= borderY: ' + (currentY >= borderY))
+
+        if (currentY < 0) currentY = 0
+        else if (currentY >= borderY) currentY = borderY
+
+        xOffset = currentX
+        yOffset = currentY
+
+        setTranslate(currentX, currentY, icon)
+    })
+
+    document.addEventListener('mouseup', () => {
+        initialX = currentX
+        initialY = currentY
+        isDragging = false
+    })
+
+    function setTranslate(xPos, yPos, el) {
+      el.style.left = xPos + "px";
+      el.style.top = yPos + "px";
+    }
+  </script>
+</body>
+</html>

@@ -1,0 +1,30 @@
+<header class="pt-6 mb-6">
+    <div class="level-left is-justify-content-center mb-5" style="inline-block">
+        <img class="logo" src="arcades-logo.png" />
+        <div>
+            <h2 class="title is-2">The Arcades</h2>
+            <h3 class="subtitle">A Minecraft server</h3>
+        </div>
+    </div>
+
+    <div class="container my-5 is-size-5 has-text-centered" style="inline-block">
+        <p>Online: %online%</p>
+        <p>Versions: 1.8.9 -> 1.21.4</p>
+        <button onclick="copyIp(event)" class="button is-size-5 copyip">mc.thearcades.eu</button>
+
+        <script>
+            function copyIp(event) {
+                navigator.clipboard.writeText(event.target.innerText);
+            }
+        </script>
+    </div>
+
+    <div class="tabs is-centered is-boxed">
+        <ul>
+            <li %active_index%><a href="/">Home</a></li>
+            <li %active_gallery%><a href="/gallery">Gallery</a></li>
+            <li %active_suggestions%><a href="/suggestions">Suggestions</a></li>
+            <li %active_info%><a href="/info">Info</a></li>
+        </ul>
+    </div>
+</header>

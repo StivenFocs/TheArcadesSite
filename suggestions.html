@@ -1,0 +1,376 @@
+<!doctype html>
+
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+
+    <link
+        rel="stylesheet"
+        href="https://cdn.jsdelivr.net/npm/bulma@1.0.2/css/bulma.min.css"
+    />
+
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+        rel="stylesheet"
+        href="https://fonts.googleapis.com/css2?family=Josefin+Sans:ital,wght@0,100..700;1,100..700&display=swap"
+    />
+
+    <link rel="stylesheet" href="master.css" />
+
+    <title>The Arcades - Suggestions</title>
+
+    <script src="js/base.js"></script>
+</head>
+
+<body data-theme="dark">
+    %header%
+
+    <div class="container content suggestions" style="max-width: 600px;">
+        <div class="login">
+            <p>To submit a suggestion you should authenticate through the ingame command <span class="marked">/suggest</span></p>
+            <label
+                >Or login by typing your auth code:
+                <input type="text" name="tokenLoginInput" class="input" placeholder="Code" max="5">
+                <button class="button" tokenLogin>Accedi</button>
+
+                <script>
+                    const tokenLoginBtn = document.querySelector('[tokenLogin]')
+                    const tokenLoginInput = document.querySelector('[name="tokenLoginInput"]')
+
+                    tokenLoginBtn.addEventListener('click', async () => {
+                        const token = tokenLoginInput.value
+
+                        const response = await fetch('/api/exchangeToken?token=' + token)
+                        const json = await response.json()
+
+                        if (response.status != 200) {
+                            alert(json.error)
+                            return
+                        }
+
+                        const sessionId = json.result
+
+                        document.cookie = 'session=' + sessionId + '; domain=thearcades.eu; SameSite=None; Secure; expires=" + expire + "; Path=/'
+
+                        location.reload()
+                    })
+                </script>
+            </label>
+        </div>
+        <div class="suggest">
+            <div style="display: flex; justify-content: space-between;">
+                <p>Logged in as <span username></span></p>
+                <a logout>logout</a>
+            </div>
+            <textarea suggestTextarea class="textarea" spellcheck="false" rows="3" placeholder="suggest something..."></textarea>
+            <button class="button" submitSuggestion>Submit</button>
+
+            <script>
+                const submitButton = document.querySelector('[submitSuggestion]')
+                const suggestTextarea = document.querySelector('[suggestTextarea]')
+                const logoutButton = document.querySelector('[logout]')
+
+                submitButton.addEventListener('click', async (event) => {
+                    const suggestion = suggestTextarea.value
+
+                    const response = await fetch('/api/submitSuggestion', {
+                        method: 'POST',
+                        body: JSON.stringify({suggestion: suggestion})
+                    })
+                    const json = await response.json()
+
+                    if (response.status != 200) {
+                        alert(json.error)
+                        return
+                    }
+
+                    suggestTextarea.value = ''
+                    await load()
+                })
+
+                logoutButton.addEventListener('click', () => {
+                    document.cookie = "session=; expires=Thu, 01 Jan 1970 00:00:00 UTC; domain=thearcades.eu; SameSite=None; Secure; path=/;";
+                    location.reload()
+                })
+            </script>
+        </div>
+
+        <div class="list">
+            <img src="images/loading.svg" alt="loading">
+        </div>
+    </div>
+
+    <script>
+        load()
+
+        async function load() {
+            await updateMe()
+
+            const suggestionsDiv = document.querySelector('.suggestions div.list')
+
+            suggestionsDiv.innerHTML = '<img src="images/loading.svg" alt="loading">'
+
+            const response = await fetch('/api/getSuggestions')
+
+            suggestionsDiv.innerText = ''
+
+            if (response.status != 200) {
+                suggestionsDiv.innerText = 'Can\'t load the suggestions.'
+                return
+            }
+
+            const suggestions = (await response.json()).result
+
+            let sortable = [];
+            for (const suggestionId of Object.keys(suggestions)) {
+                const suggestion = suggestions[suggestionId]
+                suggestion['id'] = suggestionId
+
+                sortable.push(suggestion)
+            }
+            sortable.sort(function(a, b) {
+                return b.rating - a.rating
+                //return b.date - a.date
+            })
+
+            function fillCard(suggestion, cardDiv) {
+                const username = newElement('span', suggestion.username)
+                const text = document.createElement('p')
+                text.innerHTML = suggestion.text.replaceAll('&', '&amp;').replaceAll('<', '&lt;').replaceAll('>', '&gt;').replaceAll('\n','<br>')
+                const dateSpan = newElement('span', parseDate(suggestion.date * 1000))
+
+                const suggestionDiv = cardDiv
+
+                username.classList.add('username')
+                username.style.color = suggestion.color
+
+                dateSpan.classList.add('date')
+
+                text.classList.add('text')
+
+                const nameRowDiv = document.createElement('div')
+                nameRowDiv.classList.add('name-row')
+                nameRowDiv.append(username)
+                nameRowDiv.append(dateSpan)
+
+                const buttonsDiv = document.createElement('div')
+                buttonsDiv.classList.add('buttons')
+                const upvoteImg = document.createElement('img')
+                upvoteImg.src = 'images/upvote.png'
+                const upvoteBtn = newButton(upvoteImg)
+                upvoteBtn.classList.add('upvote')
+                if (suggestion.upvoted) upvoteBtn.classList.add('upvoted')
+                const downvoteBtn = newButton(upvoteImg.cloneNode())
+                downvoteBtn.classList.add('downvote')
+                if (suggestion.downvoted) downvoteBtn.classList.add('downvoted')
+
+                function setUpvoted(bool) {
+                    if (bool) {
+                        upvoteBtn.classList.add('upvoted')
+                        downvoteBtn.classList.remove('downvoted')
+                    } else upvoteBtn.classList.remove('upvoted')
+                }
+                function setDownvoted(bool) {
+                    if (bool) {
+                        downvoteBtn.classList.add('downvoted')
+                        upvoteBtn.classList.remove('upvoted')
+                    } else downvoteBtn.classList.remove('downvoted')
+                }
+
+                upvoteBtn.addEventListener('click', async () => {
+                    const wasUpvoted = upvoteBtn.classList.contains('upvoted')
+                    const wasDownvoted = downvoteBtn.classList.contains('downvoted')
+
+                    upvoteBtn.classList.toggle('upvoted')
+
+                    const response = await fetch('/api/upvote?id=' + suggestion.id)
+                    const json = await response.json()
+
+                    if (response.status != 200) {
+                        alert(json.error)
+                        setUpvoted(wasUpvoted)
+                        setDownvoted(wasDownvoted)
+                        setDownvoted
+                        return
+                    }
+
+                    setUpvoted(json.result)
+                })
+                downvoteBtn.addEventListener('click', async () => {
+                    const wasUpvoted = upvoteBtn.classList.contains('upvoted')
+                    const wasDownvoted = downvoteBtn.classList.contains('downvoted')
+
+                    upvoteBtn.classList.toggle('downvoted')
+
+                    const response = await fetch('/api/downvote?id=' + suggestion.id)
+                    const json = await response.json()
+
+                    if (response.status != 200) {
+                        alert(json.error)
+                        setUpvoted(wasUpvoted)
+                        setDownvoted(wasDownvoted)
+                        return
+                    }
+
+                    setDownvoted(json.result)
+                })
+
+                const reportBtn = newButton('Report')
+                if (suggestion.reported)
+                    reportBtn.classList.add('reported')
+                reportBtn.addEventListener('click', async() => {
+                    const response = await fetch('api/reportSuggestion?id=' + suggestion.id)
+                    const json = await response.json()
+
+                    if (response.status != 200) {
+                        alert(json.error)
+                        return
+                    }
+
+                    reportBtn.innerText = 'Reported'
+                    reportBtn.classList.add('reported')
+                })
+
+                buttonsDiv.append(upvoteBtn)
+                buttonsDiv.append(downvoteBtn)
+                buttonsDiv.append(reportBtn)
+
+                if (isOp) {
+                    const deleteBtn = newButton('Delete')
+                    deleteBtn.addEventListener('click', () => {
+                        suggestionDiv.innerHTML = ''
+
+                        const div = document.createElement('div')
+                        div.classList.add('del')
+
+                        div.append(newElement('span', 'Suggestion deleted'))
+
+                        const undoBtn = newElement('button', 'Undo')
+                        undoBtn.classList.add('button')
+
+                        function setBack() {
+                            suggestionDiv.innerHTML = ''
+                            fillCard(suggestion, suggestionDiv)
+                        }
+
+                        const timeout = setTimeout(async () => {
+                            const response = await fetch('/api/deleteSuggestion?id=' + suggestion.id)
+                            const json = await response.json()
+
+                            if (response.status != 200) {
+                                alert(json.error)
+                                setBack()
+                                return
+                            }
+
+                            undoBtn.remove()
+                        }, 5000)
+
+                        undoBtn.addEventListener('click', () => {
+                            clearTimeout(timeout)
+                            setBack()
+                        })
+                        div.append(undoBtn)
+
+                        suggestionDiv.append(div)
+                    })
+
+                    buttonsDiv.append(deleteBtn)
+                }
+
+                suggestionDiv.setAttribute('id', suggestion.id)
+                suggestionDiv.classList.add('suggestion')
+                suggestionDiv.append(nameRowDiv)
+                suggestionDiv.append(text)
+                suggestionDiv.append(buttonsDiv)
+
+                return suggestionDiv
+            }
+
+            suggestionsDiv.append(newElement('h3', 'Recent suggestions'))
+            for (const suggestion of sortable) {
+                suggestionsDiv.append(fillCard(suggestion, document.createElement('div')))
+            }
+        }
+
+        let username = 'not logged'
+        let isOp = false
+
+        async function updateMe() {
+            const login = document.querySelector('.login')
+            const suggest = document.querySelector('.suggest')
+            const usernameP = document.querySelector('[username]')
+
+            const response = await fetch('/api/getMe')
+            const json = await response.json()
+
+            if (response.status == 200) {
+                login.style.display = 'none'
+                suggest.style.display = 'block'
+
+                username = json.result.username
+                isOp = json.result.isOp
+
+                usernameP.innerText = username
+                usernameP.style.color = json.result.color
+            } else {
+                login.style.display = 'block'
+                suggest.style.display = 'none'
+
+                document.cookie = 'session=; max-age=-1'
+            }
+        }
+
+        function newButton(text) {
+            const btn = newElement('button', text)
+            btn.classList.add('button')
+
+            return btn
+        }
+
+        function parseDate(suggestDate) {
+            const nowDate = (new Date().getTime())
+            const date = new Date(suggestDate)
+
+            let month = date.getMonth() + 1
+            if (month.toString().length < 2)
+                month = "0" + month
+            let dateString = date.getDate() + "/" + month + "/" + date.getFullYear()
+
+            const passedTime = (nowDate / 1000) - (suggestDate / 1000)
+
+            if (passedTime < 60)
+                return "a moment ago"
+            else if (passedTime < 3600) {
+                const amount = Math.floor(passedTime / 60)
+                const name = amount == 1 ? "minute" : "minutes"
+
+                return `${amount} ${name} ago`
+            } else if (passedTime < 86400) {
+                const amount = Math.floor(passedTime / 3600)
+                const name = amount == 1 ? "hour" : "hours"
+
+                return `${amount} ${name} ago`
+            } else if (passedTime < 2592000) {
+                const amount = Math.ceil(passedTime / 86400)
+                const name = amount == 1 ? "day" : "days"
+
+                return `${amount} ${name} ago`
+            } else if (passedTime < 31104000) {
+                const amount = Math.floor(passedTime / 2592000)
+                const name = amount == 1 ? "month" : "months"
+
+                return `${amount} ${name} ago`
+            } else return dateString
+        }
+
+        function newElement(type, content) {
+            const el = document.createElement(type)
+            el.append(content)
+
+            return el
+        }
+    </script>
+
+</body>
